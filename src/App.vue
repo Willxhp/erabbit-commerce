@@ -1,8 +1,16 @@
 <template>
   <div>
-    App
   </div>
 </template>
+
+<script>
+export default {
+  name: 'App'
+}
+</script>
+
+<script setup>
+</script>
 
 <style lang="less">
 </style>
