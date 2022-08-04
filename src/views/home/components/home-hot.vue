@@ -1,17 +1,20 @@
 <template>
-  <!-- 新鲜好物组件 -->
-  <div class="home-new">
+  <!-- 人气推荐组件 -->
+  <div class="home-new" ref="target">
     <HomePanel title="人气推荐" sub-title="人气爆款 不容错过">
       <!-- 面板内容，放入默认插槽中 -->
-      <ul ref="pannel" class="goods-list">
-        <li v-for="item in goods" :key="item.id">
-          <RouterLink to="/">
-            <img :src="item.picture" alt="">
-            <p class="name">{{item.title}}</p>
-            <p class="desc">{{item.alt}}</p>
-          </RouterLink>
-        </li>
-      </ul>
+      <transition name="fade">
+        <ul ref="pannel" class="goods-list" v-if="goods.length">
+          <li v-for="item in goods" :key="item.id">
+            <RouterLink to="/">
+              <img :src="item.picture" alt="">
+              <p class="name">{{item.title}}</p>
+              <p class="desc">{{item.alt}}</p>
+            </RouterLink>
+          </li>
+        </ul>
+        <HomeSkeleton v-else></HomeSkeleton>
+      </transition>
     </HomePanel>
   </div>
 </template>
@@ -24,12 +27,17 @@ export default {
 
 <script setup>
 import HomePanel from './home-panel'
+import HomeSkeleton from './home-skeleton'
 import { ref } from 'vue'
 import { findHot } from '@/api/home'
-const goods = ref([])
-findHot().then(data => {
-  goods.value = data.result
-})
+import { useLazyData } from '@/hooks'
+
+// const goods = ref([])
+// findHot().then(data => {
+//   goods.value = data.result
+// })
+// 组件数据懒加载
+const { target, result: goods } = useLazyData(findHot)
 </script>
 
 <style lang="less" scoped>

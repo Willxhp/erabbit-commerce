@@ -102,3 +102,18 @@ ul {
   line-height: 0;
   clear: both;
 }
+
+// 骨架组件淡出动画
+.fade {
+  &-leave {
+    &-active {
+      // 添加绝对定位使其在进行离开动画时可以覆盖在面板上方
+      position: absolute;
+      transition: opacity .5s .2s;
+      z-index: 1;
+    }
+    &-to {
+      opacity: 0;
+    }
+  }
+}

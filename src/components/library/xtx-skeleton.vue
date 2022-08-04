@@ -12,7 +12,7 @@ export default {
 </script>
 
 <script setup>
-// 使用的时候需要动态设置 高度，宽度，背景颜色，是否闪下
+// 使用的时候需要动态设置 高度，宽度，背景颜色，是否闪烁
 const props = defineProps({
   bg: {
     type: String,
