@@ -1,6 +1,11 @@
 <template>
   <div class="top-category">
-    TopCategory
+    <div class="container">
+      <XtxBread>
+        <XtxBreadItem :to="{path: '/'}">首页</XtxBreadItem>
+        <XtxBreadItem to="/category/1005000">电器</XtxBreadItem>
+      </XtxBread>
+    </div>
   </div>
 </template>
 
@@ -11,5 +16,4 @@ export default {
 </script>
 
 <style>
-
 </style>
