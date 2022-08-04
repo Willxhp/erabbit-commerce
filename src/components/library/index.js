@@ -1,19 +1,30 @@
 // vue插件，向全局注册组件或自定义指令
 // 该文件作为自定义UI组件库的入口文件
 import defaultImg from '@/assets/images/200.png'
-import XtxSkeleton from './xtx-skeleton.vue'
-import XtxCarousel from './xtx-carousel.vue'
-import XtxMore from './xtx-more.vue'
-import XtxBread from './xtx-bread.vue'
-import XtxBreadItem from './xtx-bread-item.vue'
+// import XtxSkeleton from './xtx-skeleton.vue'
+// import XtxCarousel from './xtx-carousel.vue'
+// import XtxMore from './xtx-more.vue'
+// import XtxBread from './xtx-bread.vue'
+// import XtxBreadItem from './xtx-bread-item.vue'
+
+// 利用webpack提供的require.context()函数实现组件的批量自动导入
+// require.context()会加载某一个目录下所有指定的文件，并返回一个导入函数
+// require.context()函数接收三个参数，1. 文件目录 2. 是否加载子目录 3. 加载文件的正则或字符串匹配
+// 返回的importFn函数有一个keys方法，调用该方法会返回所有匹配的文件路径组成的数组
+// importFn本身就是一个导入函数，可以导入组件
+const importFn = require.context('./', false, /\.vue$/)
 
 export default {
   install(app) {
-    app.component(XtxSkeleton.name, XtxSkeleton)
-    app.component(XtxCarousel.name, XtxCarousel)
-    app.component(XtxMore.name, XtxMore)
-    app.component(XtxBread.name, XtxBread)
-    app.component(XtxBreadItem.name, XtxBreadItem)
+    // app.component(XtxSkeleton.name, XtxSkeleton)
+    // app.component(XtxCarousel.name, XtxCarousel)
+    // app.component(XtxMore.name, XtxMore)
+    // app.component(XtxBread.name, XtxBread)
+    // app.component(XtxBreadItem.name, XtxBreadItem)
+    importFn.keys().forEach(key => {
+      const component = importFn(key).default
+      app.component(component.name, component)
+    })
     defineDirective(app)
   }
 }

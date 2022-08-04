@@ -42,12 +42,12 @@ import { ref } from 'vue'
 import { findGoods } from '@/api/home'
 import { useLazyData } from '@/hooks'
 // 数据懒加载
-let cate = ref([])
-findGoods().then(data => {
-  cate.value = data.result
-  console.log(data.result)
-})
-// const { result: cate, target } = useLazyData(findGoods)
+// let cate = ref([])
+// findGoods().then(data => {
+//   cate.value = data.result
+//   console.log(data.result)
+// })
+const { result: cate, target } = useLazyData(findGoods)
 </script>
 
 <style lang="less" scoped>

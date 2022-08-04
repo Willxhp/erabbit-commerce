@@ -16,11 +16,11 @@ const routes = [
         component: Home,
       },
       {
-        path: '/category/:id',
+        path: 'category/:id',
         component: topCategory
       },
       {
-        path:'/category/sub/:id',
+        path:'category/sub/:id',
         component: subCategory
       }
     ],
