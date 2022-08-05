@@ -4,9 +4,9 @@
     <HomePanel v-for="item in cate" :key="item.id" :title="item.name">
       <template #right>
         <div class="sub">
-          <router-link to="/" v-for="sub in item.children" :key="sub.id">{{sub.name}}</router-link>
+          <router-link :to="`/category/sub/${sub.id}`" v-for="sub in item.children" :key="sub.id">{{sub.name}}</router-link>
         </div>
-        <XtxMore></XtxMore>
+        <XtxMore :path="`/category/${item.id}`"></XtxMore>
       </template>
       <div class="box">
         <router-link to="/" class="cover">

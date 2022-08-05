@@ -17,12 +17,12 @@ const routes = [
       },
       {
         path: 'category/:id',
-        component: topCategory
+        component: topCategory,
       },
       {
-        path:'category/sub/:id',
-        component: subCategory
-      }
+        path: 'category/sub/:id',
+        component: subCategory,
+      },
     ],
   },
 ]
@@ -31,6 +31,10 @@ const router = createRouter({
   // 设置路由模式为hash模式
   history: createWebHashHistory(),
   routes,
+  // 控制路由切换后页面的滚动位置
+  scrollBehavior() {
+    return { top: 0 }
+  },
 })
 
 export default router

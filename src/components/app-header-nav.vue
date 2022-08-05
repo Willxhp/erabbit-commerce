@@ -4,8 +4,8 @@
     <li class="home">
       <router-link to="/">首页</router-link>
     </li>
-    <li v-for="item in list" :key="item.id" @mouseenter="open(item.id)" @mouseleave="hide(item.id)">
-      <!-- 点击顶级分类或二级分类跳转连接后需要将二级弹窗分类关闭，当鼠标进入li时显示，鼠标移出时隐藏 -->
+    <li v-for="item in list" :key="item.id" @mousemove="open(item.id)" @mouseleave="hide(item.id)">
+      <!-- 点击顶级分类或二级分类跳转连接后需要将二级弹窗分类关闭，当鼠标移动时显示，鼠标移出时隐藏 -->
       <router-link :to="`/category/${item.id}`" @click="hide(item.id)">{{item.name}}</router-link>
       <!-- 通过动态绑定open类名来控制二级分类弹窗的显示与隐藏，而不是只采用hover -->
       <div class="layer" :class="{open: item.open}">

@@ -117,3 +117,19 @@ ul {
     }
   }
 }
+
+// 面包屑淡入淡出动画
+.fade-right-enter-from,
+.fade-right-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
+.fade-right-enter-active,
+.fade-right-leave-active {
+  transition: all .5s;
+}
+.fade-right-enter-to,
+.fade-right-leave-from {
+  transform: none;
+  opacity: 1;
+}
