@@ -9,7 +9,7 @@
         <XtxMore :path="`/category/${item.id}`"></XtxMore>
       </template>
       <div class="box">
-        <router-link to="/" class="cover">
+        <router-link :to="`category/${item.id}`" class="cover">
         <!-- 由于产品区块组件高度较高，且含有的图片资源较多，为加快页面显示速度，对组件内的图片进行懒加载处理，
         当图片不在可视区内时不会加载图片 -->
           <img v-lazy="item.picture" alt="">
@@ -20,7 +20,7 @@
         </router-link>
         <ul class="goods-list">
           <li v-for="good in item.goods" :key="good.id">
-            <HomeGoods :good="good"></HomeGoods>
+            <HomeGoods :good="good" :category="item"></HomeGoods>
           </li>
         </ul>
       </div>

@@ -1,13 +1,13 @@
 <template>
   <!-- 单个商品展示组件 -->
   <div class="goods-items">
-    <router-link to="/">
-      <img v-lazy="good.picture" alt="">
-      <p class="name ellipsis-2">{{good.name}}</p>
-      <p class="desc ellipsis">{{good.desc}}</p>
-      <p class="price">&yen;{{good.price}}</p>
+    <router-link :to="`/product/${good.id}`">
+      <img v-lazy="good.picture" alt="" />
+      <p class="name ellipsis-2">{{ good.name }}</p>
+      <p class="desc ellipsis">{{ good.desc }}</p>
+      <p class="price">&yen;{{ good.price }}</p>
     </router-link>
-    <router-link to="/">
+    <router-link :to="`/category/${category.id}`">
       <div class="extra">
         <span>找相似</span>
         <span>发现更多宝贝 &gt;</span>
@@ -22,12 +22,15 @@ export default {
   props: {
     good: {
       type: Object,
-      default: () => {}
-    }
-  }
+      default: () => ({}),
+    },
+    category: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
 }
 </script>
-
 
 <style lang="less" scoped>
 .goods-items {
