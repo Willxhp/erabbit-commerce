@@ -9,6 +9,8 @@
   <router-view></router-view>
   <!-- 底部区域 -->
   <AppFooter></AppFooter>
+
+  <div @click="changeRoute">12124</div>
 </template>
 
 <script>
@@ -27,6 +29,7 @@ import { useStore } from 'vuex'
 const store = useStore()
 // 获取全部分类数据
 store.dispatch('category/getList')
+
 </script>
 
 <style lang="less" scoped>

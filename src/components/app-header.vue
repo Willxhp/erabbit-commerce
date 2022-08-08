@@ -12,7 +12,7 @@
       </div>
       <!-- 购物车区域 -->
       <div class="cart">
-        <a class="curr" href="#">
+        <a class="curr" href="javascript:;">
           <i class="iconfont icon-cart"></i><em>2</em>
         </a>
       </div>

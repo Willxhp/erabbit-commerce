@@ -24,8 +24,13 @@ const props = defineProps({
   goods: {
     type: Object,
     default: () => ({})
+  },
+  skuId: {
+    type: String,
+    default: 's'
   }
 })
+const emit = defineEmits(['change'])
 // 一、实现按钮的选中效果 规格信息保存在props.goods.specs中
 // 点击按钮切换选中状态
 const changeSku = (item, val) => {
@@ -46,6 +51,28 @@ const changeSku = (item, val) => {
   }
   // 点击规格时更新规格的禁用状态
   updateDisabledStatus(props.goods.specs, pathMap)
+
+  // 触发change事件，向父组件传递当前选中的规格信息
+  // 获取当前已经选中规格的有效集合，即排除集合中的undefined项
+  const validSelectedArr = getSelectedArr(props.goods.specs).filter(v => v)
+  if (validSelectedArr.length === props.goods.specs.length) {
+    // 当所有属性都有规格被选中时，才传递完整的sku信息对象
+    // 从路径字典中查找当前规格集合对应sku的id信息
+    const skuId = pathMap[validSelectedArr.join(spliter)][0]
+    const sku = props.goods.skus.find(sku => sku.id === skuId)
+    const {id, price, oldPrice, inventory, specs} = sku
+    emit('change', {
+      skuId,
+      price,
+      oldPrice,
+      inventory,
+      specsText: specs.reduce((p, c) => `${p} ${c.name}：${c.valueName}`, '').trim()
+    })
+  } else {
+    // 如果选择的规格不完整，传递空对象
+    emit('change', {})
+  }
+
 }
 // 二、实现按钮的禁用效果（项目难点） sku信息保存在props.goods.skus中
 // 不同的产品规格可以组合成多个sku组合，每种sku的库存信息通过后台返回，sku组合就是规格的笛卡尔积
@@ -96,7 +123,7 @@ const getSelectedArr = (specs) => {
   return selectedArr
 }
 
-// 更新规格状态的方法
+// 2. 更新规格状态的方法
 const updateDisabledStatus = (specs, pathMap) => {
   // 判断每个规格是否禁用的逻辑: 
   // 1. 如果当前规格已经被选中，则不会被禁用，直接跳过判断逻辑
@@ -118,8 +145,26 @@ const updateDisabledStatus = (specs, pathMap) => {
     })
   })
 }
+
+// 三、根据父组件传入的skuId，初始化规格的选中状态，
+const initSelectedStatus = (goods, skuId) => {
+  // 根据skuId从商品信息中筛选出对应的sku信息
+  const sku = goods.skus.find(sku => sku.id === skuId)
+  if (sku) {
+    // 遍历商品属性
+    goods.specs.forEach((spec, i) => {
+      const value = sku.specs[i].valueName
+      // 将每种属性中与sku信息相符合的规格设置为selected
+      const val = spec.values.find(val => val.name === value)
+      val.selected = true
+    })
+  }
+}
+// 组件初始化时调用initSelectedStatus
+initSelectedStatus(props.goods, props.skuId)
 // 组件初始化时调用updateDisabledStatus
 updateDisabledStatus(props.goods.specs, pathMap)
+
 </script>
 
 <style lang="less" scoped>

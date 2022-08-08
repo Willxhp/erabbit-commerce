@@ -12,6 +12,7 @@
     </dl>
     <dl>
       <dt>配送</dt>
+      <!-- 城市组件 -->
       <dd>至 <XtxCity :fullLocation="fullLocation" @change="changeCity"></XtxCity>
       </dd>
     </dl>

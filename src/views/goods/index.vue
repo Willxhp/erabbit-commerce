@@ -15,8 +15,16 @@
           <GoodsSales></GoodsSales>
         </div>
         <div class="spec">
+          <!-- 商品名组件 -->
           <GoodsName :goods="goods"></GoodsName>
-          <GoodsSku :goods="goods"></GoodsSku>
+          <!-- 规格组件 -->
+          <GoodsSku :goods="goods" @change="changeSku"></GoodsSku>
+          <div style="display: flex; align-items: center;">
+            <!-- 数量选择组件 -->
+            <XtxNumbox label="数量" v-model="num" :max="goods.inventory"></XtxNumbox>
+            <span style="margin-left: 10px; color: #999;">库存 {{goods.inventory}} 件</span>
+          </div>
+          <XtxButton type="primary" style="margin-top: 20px;">加入购物车</XtxButton>
         </div>
       </div>
       <!-- 商品推荐 -->
@@ -25,12 +33,19 @@
       <div class="goods-footer">
         <div class="goods-article">
           <!-- 商品+评价 -->
-          <div class="goods-tabs"></div>
+          <div class="goods-tabs">
+            <GoodsTabs></GoodsTabs>
+          </div>
           <!-- 注意事项 -->
-          <div class="goods-warn"></div>
+          <div class="goods-warn">
+            <GoodsWarn></GoodsWarn>
+          </div>
         </div>
         <!-- 24热榜+专题推荐 -->
-        <div class="goods-aside"></div>
+        <div class="goods-aside">
+          <GoodsHot :type="1"></GoodsHot>
+          <GoodsHot :type="2"></GoodsHot>
+        </div>
       </div>
     </div>
   </div>
@@ -48,11 +63,19 @@ import GoodsImage from './components/goods-image'
 import GoodsSales from './components/goods-sales'
 import GoodsName from './components/goods-name'
 import GoodsSku from './components/goods-sku'
+import GoodsTabs from './components/goods-tabs'
+import GoodsHot from './components/goods-hot'
+import GoodsWarn from './components/goods-warn'
 import { findGoods } from '@/api/product'
 import { useRoute } from 'vue-router'
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, provide } from 'vue'
 const route = useRoute()
+// 商品信息数据
 const goods = ref(null)
+// 向后代组件提供商品数据
+provide('goods', goods)
+// 展示的商品数量
+const num = ref(1)
 
 // 获取产品信息
 const useGoods = () => {
@@ -65,12 +88,32 @@ const useGoods = () => {
         goods.value = null
         nextTick(() => {
           goods.value = data.result
+          defaultGoodsInfo = {
+            price: goods.value.price,
+            oldPrice: goods.value.oldPrice,
+            inventory: goods.value.inventory
+          }
         })
       })
     }
   }, { immediate: true })
 }
 useGoods()
+
+// 保存商品默认信息，当商品规格选择不完整时显示
+let defaultGoodsInfo
+
+const changeSku = (sku) => {
+  if (sku.skuId) {
+    goods.value.price = sku.price
+    goods.value.oldPrice = sku.oldPrice
+    goods.value.inventory = sku.inventory
+  } else {
+    goods.value.price = defaultGoodsInfo.price
+    goods.value.oldPrice = defaultGoodsInfo.oldPrice
+    goods.value.inventory = defaultGoodsInfo.inventory
+  }
+}
 </script>
 
 <style scoped lang="less">
@@ -99,10 +142,6 @@ useGoods()
     width: 280px;
     min-height: 1000px;
   }
-}
-.goods-tabs {
-  min-height: 600px;
-  background: #fff;
 }
 .goods-warn {
   min-height: 600px;

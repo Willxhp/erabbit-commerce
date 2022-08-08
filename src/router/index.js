@@ -29,7 +29,7 @@ const routes = [
         component: Goods
       }
     ],
-  },
+  }
 ]
 
 const router = createRouter({
