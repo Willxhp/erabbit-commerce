@@ -13,13 +13,17 @@ export default {
         mobile: '',
         // token用于用户的身份验证
         token: ''
-      }
+      },
+      redirectUrl: '/'
     }
   },
   mutations: {
     // 修改用户信息，payLoad是用户信息对象
     setUser(state, payLoad) {
       state.profile = payLoad
+    },
+    setRedirectUrl(state, redirectUrl) {
+      state.redirectUrl = redirectUrl
     }
   }
 }

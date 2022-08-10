@@ -14,7 +14,7 @@
         <div class="form-item">
           <div class="input">
             <i class="iconfont icon-user"></i>
-            <Field type="text" name="account" placeholder="请输入用户名" v-model="form.account" />
+            <Field type="text" name="account" placeholder="请输入用户名" v-model="form.account" :class="{error: errors.account}" />
           </div>
           <div class="error" v-if="errors.account">
             <i class="iconfont icon-warning" />{{errors.account}}
@@ -23,7 +23,7 @@
         <div class="form-item">
           <div class="input">
             <i class="iconfont icon-lock"></i>
-            <Field type="password" name="password" placeholder="请输入密码" v-model="form.password" />
+            <Field type="password" name="password" placeholder="请输入密码" v-model="form.password" :class="{error: errors.password}" />
           </div>
           <div class="error" v-if="errors.password">
             <i class="iconfont icon-warning" />{{errors.password}}
@@ -34,7 +34,7 @@
         <div class="form-item">
           <div class="input">
             <i class="iconfont icon-user"></i>
-            <Field type="text" name="mobile" placeholder="请输入手机号" v-model="form.mobile" />
+            <Field type="text" name="mobile" placeholder="请输入手机号" v-model="form.mobile" :class="{error: errors.mobile}" />
           </div>
           <div class="error" v-if="errors.mobile">
             <i class="iconfont icon-warning" />{{errors.mobile}}
@@ -43,8 +43,8 @@
         <div class="form-item">
           <div class="input">
             <i class="iconfont icon-code"></i>
-            <Field type="text" name="code" placeholder="请输入验证码" v-model="form.code" />
-            <span class="code">发送验证码</span>
+            <Field type="text" name="code" placeholder="请输入验证码" v-model="form.code" :class="{error: errors.code}" />
+            <span class="code" @click="send">{{time === 0 ? '发送验证码' : `${time}秒后重发`}}</span>
           </div>
           <div class="error" v-if="errors.code">
             <i class="iconfont icon-warning" />{{errors.code}}
@@ -86,6 +86,13 @@ import { reactive, ref, watch } from 'vue'
 import { Field, Form } from 'vee-validate'
 import schemaFn from '@/utils/vee-validate-schema'
 import Message from '@/components/library/Message'
+import { userAccountLogin, getMobileLoginCode, userMobileLogin } from '@/api/user'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
+import { useIntervalFn } from '@vueuse/core'
+
+const store = useStore()
+const router = useRouter()
 
 // 表单组件实例
 const formEl = ref(null)
@@ -122,9 +129,69 @@ watch(isMsgLogin, () => {
 const login = async () => {
   // Form组件提供了一个validate函数作为整体的表单校验，返回的是一个Promise
   const valid = await formEl.value.validate()
-  console.log(valid)
-  Message({type: 'success', text: '请输入密码'})
+  // 通过表单校验后发请求
+  if (valid) {
+    if (!isMsgLogin.value) {
+      // 用户使用用户名密码登录
+      userAccountLogin({ account: form.account, password: form.password }).then(data => {
+        const { account, id, avatar, mobile, nickname, token } = data.result
+        // 用户信息存储至vuex中
+        store.commit('user/setUser', { account, id, avatar, mobile, nickname, token })
+        Message({ type: 'success', text: '登录成功' })
+        // 登录成功后跳转至来源页面或首页
+        router.push(store.state.user.redirectUrl)
+      }, error => {
+        // 登录失败
+        Message({ type: 'error', text: error.response.data.message || '登录失败' })
+      })
+    } else {
+      // 使用短信登录
+      userMobileLogin({ mobile: form.mobile, code: form.code }).then(data => {
+        const { account, id, avatar, mobile, nickname, token } = data.result
+        // 用户信息存储至vuex中
+        store.commit('user/setUser', { account, id, avatar, mobile, nickname, token })
+        Message({ type: 'success', text: '登录成功' })
+        // 登录成功后跳转至来源页面或首页
+        router.push(store.state.user.redirectUrl)
+      }, error => {
+        // 登录失败
+        Message({ type: 'error', text: error.response.data.message || '登录失败' })
+      })
+    }
+  }
 }
+
+// 发送验证码60s后才可以重新发送
+const time = ref(0)
+// 使用@vueuse/core提供的useIntervalFn来实现time每隔1s自动减1
+// pause和resume是两个函数，分别用于关闭和开启定时器
+// useIntervalFn接收三个参数，回调函数，时间间隔和配置对象
+const { pause, resume } = useIntervalFn(() => {
+  time.value--
+  if (time.value <= 0) pause()
+}, 1000, {
+  immediate: false // 定时器不会立即开启，必须调用resume方法才会开启
+})
+
+// 发送验证码
+const send = () => {
+  // 对mobile表单项进行单独校验
+  const valid = schema.mobile(form.mobile)
+  if (valid === true) {
+    // 手机号格式正确，发送请求获取短信验证码，同时开启定时器
+    if (time.value === 0) {
+      getMobileLoginCode(form.mobile)
+      Message({ type: 'success', text: '验证码发送成功' })
+      time.value = 60
+      pause() // 先关闭定时器再开启定时器，以防重复开启定时器
+      resume()
+    }
+  } else {
+    // 手机号格式错误
+    formEl.value.setFieldError('mobile', valid)
+  }
+}
+
 </script>
 
 <style lang="less" scoped>

@@ -34,7 +34,16 @@ import { ref } from 'vue'
 import LoginHeader from './components/login-header'
 import LoginFooter from './components/login-footer'
 import LoginForm from './components/login-form'
+import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
+
+// 用于切换账户登录和扫码登录
 const activeName = ref('account')
+const store = useStore()
+const route = useRoute()
+// 进入登录页面，首先获取url中的redirectUrl参数以获取来源页面信息，将其存储至vuex中
+store.commit('user/setRedirectUrl', route.query.redirectUrl || '/')
+
 </script>
 
 <style lang="less" scoped>

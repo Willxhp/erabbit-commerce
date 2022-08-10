@@ -4,10 +4,12 @@
       <ul>
         <template v-if="profile.token">
           <li><a href="javascript:;"><i class="iconfont icon-user"></i>{{profile.account}}</a></li>
-          <li><a href="javascript:;">退出登录</a></li>
+          <li><a href="javascript:;" @click="logout">退出登录</a></li>
         </template>
         <template v-else>
-          <li><router-link to="/login">请先登录</router-link></li>
+          <li>
+            <router-link to="/login">请先登录</router-link>
+          </li>
           <li><a href="javascript:;">免费注册</a></li>
         </template>
         <li><a href="javascript:;">我的订单</a></li>
@@ -28,10 +30,27 @@ export default {
 <script setup>
 import { computed } from 'vue'
 import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
+import Message from '@/components/library/Message'
 const store = useStore()
+const router = useRouter()
 
 // 获取用户信息
 const profile = computed(() => store.state.user.profile)
+
+// 退出登录
+const logout = () => {
+  store.commit('user/setUser', {
+    id: '',
+    avatar: '',
+    nickname: '',
+    account: '',
+    mobile: '',
+    token: ''
+  })
+  Message({type: 'success', text: '退出登录成功'})
+  router.push('/login')
+}
 </script>
 
 <style scoped lang="less">
