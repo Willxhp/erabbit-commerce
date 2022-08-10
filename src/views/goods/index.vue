@@ -1,12 +1,16 @@
 <template>
   <div class="xtx-goods-page" v-if="goods">
     <div class="container">
-      <!-- 面包屑 -->
+      <!-- 面包屑组件 -->
       <XtxBread>
         <XtxBreadItem to="/">首页</XtxBreadItem>
-        <XtxBreadItem :to="`/category/${goods.categories[1].id}`">{{goods.categories[1].name}}</XtxBreadItem>
-        <XtxBreadItem :to="`/category/sub/${goods.categories[0].id}`">{{goods.categories[0].name}}</XtxBreadItem>
-        <XtxBreadItem>{{goods.name}}</XtxBreadItem>
+        <XtxBreadItem :to="`/category/${goods.categories[1].id}`">{{
+          goods.categories[1].name
+        }}</XtxBreadItem>
+        <XtxBreadItem :to="`/category/sub/${goods.categories[0].id}`">{{
+          goods.categories[0].name
+        }}</XtxBreadItem>
+        <XtxBreadItem>{{ goods.name }}</XtxBreadItem>
       </XtxBread>
       <!-- 商品信息 -->
       <div class="goods-info">
@@ -19,15 +23,23 @@
           <GoodsName :goods="goods"></GoodsName>
           <!-- 规格组件 -->
           <GoodsSku :goods="goods" @change="changeSku"></GoodsSku>
-          <div style="display: flex; align-items: center;">
+          <div style="display: flex; align-items: center">
             <!-- 数量选择组件 -->
-            <XtxNumbox label="数量" v-model="num" :max="goods.inventory"></XtxNumbox>
-            <span style="margin-left: 10px; color: #999;">库存 {{goods.inventory}} 件</span>
+            <XtxNumbox
+              label="数量"
+              v-model="num"
+              :max="goods.inventory"
+            ></XtxNumbox>
+            <span style="margin-left: 10px; color: #999"
+              >库存 {{ goods.inventory > 999 ? '999+' : goods.inventory }} 件</span
+            >
           </div>
-          <XtxButton type="primary" style="margin-top: 20px;">加入购物车</XtxButton>
+          <XtxButton type="primary" style="margin-top: 20px"
+            >加入购物车</XtxButton
+          >
         </div>
       </div>
-      <!-- 商品推荐 -->
+      <!-- 商品推荐组件 -->
       <GoodsRelevant />
       <!-- 商品详情 -->
       <div class="goods-footer">
@@ -80,23 +92,27 @@ const num = ref(1)
 // 获取产品信息
 const useGoods = () => {
   // 每当路由中的id变化时重新发送请求获取数据
-  watch(() => route.params.id, (newVal) => {
-    if (newVal && `/product/${newVal}` === route.path) {
-      findGoods({ id: route.params.id }).then((data) => {
-        console.log(data.result)
-        // 每次获取数据后，先将goods重置为null，利用v-if将组件销毁，从而在新数据返回后触发所有子组件的setup函数
-        goods.value = null
-        nextTick(() => {
-          goods.value = data.result
-          defaultGoodsInfo = {
-            price: goods.value.price,
-            oldPrice: goods.value.oldPrice,
-            inventory: goods.value.inventory
-          }
+  watch(
+    () => route.params.id,
+    (newVal) => {
+      if (newVal && `/product/${newVal}` === route.path) {
+        findGoods({ id: route.params.id }).then((data) => {
+          console.log(data.result)
+          // 每次获取数据后，先将goods重置为null，利用v-if将组件销毁，从而在新数据返回后触发所有子组件的setup函数
+          goods.value = null
+          nextTick(() => {
+            goods.value = data.result
+            defaultGoodsInfo = {
+              price: goods.value.price,
+              oldPrice: goods.value.oldPrice,
+              inventory: goods.value.inventory,
+            }
+          })
         })
-      })
-    }
-  }, { immediate: true })
+      }
+    },
+    { immediate: true }
+  )
 }
 useGoods()
 

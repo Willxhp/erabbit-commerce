@@ -5,7 +5,7 @@
       <a :class="{active: activeName === 'GoodsComment'}" @click="activeName = 'GoodsComment'" href="javascript:;">商品评价<span>({{goods.commentCount}})</span></a>
     </nav>
     <!-- 切换内容的地方，使用Component动态组件，根据is属性绑定的组件名进行切换 -->
-    <!-- 使用component动态组件必须在配置项中注册组件 -->
+    <!-- 使用component动态组件必须在配置项中注册组件，即使使用script setup语法糖 -->
     <component :is="activeName"></component>
   </div>
 </template>

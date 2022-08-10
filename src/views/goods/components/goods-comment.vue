@@ -1,71 +1,39 @@
 <template>
   <!-- 商品评价组件 -->
-  <div class="goods-comment">
-    <div class="head" v-if="commentInfo">
+  <div class="goods-comment" v-if="commentInfo">
+    <div class="head">
       <div class="data">
         <p>
-          <span>{{ commentInfo.salesCount }}</span
-          ><span>人购买</span>
+          <span>{{ commentInfo.salesCount }}</span><span>人购买</span>
         </p>
         <p>
-          <span>{{ commentInfo.praisePercent }}</span
-          ><span>好评率</span>
+          <span>{{ commentInfo.praisePercent }}</span><span>好评率</span>
         </p>
       </div>
       <div class="tags">
         <div class="dt">大家都在说：</div>
         <div class="dd">
-          <a
-            href="javascript:;"
-            :class="{ active: currTagIndex === i }"
-            @click="changeTag(i)"
-            v-for="(tag, i) in commentInfo.tags"
-            :key="tag.title"
-            >{{ tag.title }}（{{ tag.tagCount }}）</a
-          >
+          <a href="javascript:;" :class="{ active: currTagIndex === i }" @click="changeTag(i)" v-for="(tag, i) in commentInfo.tags" :key="tag.title">{{ tag.title }}（{{ tag.tagCount }}）</a>
         </div>
       </div>
     </div>
     <div class="sort">
       <span>排序：</span>
-      <a
-        href="javascript:;"
-        :class="{ active: reqParams.sortField === null }"
-        @click="changeSort(null)"
-        >默认</a
-      >
-      <a
-        href="javascript:;"
-        :class="{ active: reqParams.sortField === 'createTime' }"
-        @click="changeSort('createTime')"
-        >最新</a
-      >
-      <a
-        href="javascript:;"
-        :class="{ active: reqParams.sortField === 'praiseCount' }"
-        @click="changeSort('praiseCount')"
-        >最热</a
-      >
+      <a href="javascript:;" :class="{ active: reqParams.sortField === null }" @click="changeSort(null)">默认</a>
+      <a href="javascript:;" :class="{ active: reqParams.sortField === 'createTime' }" @click="changeSort('createTime')">最新</a>
+      <a href="javascript:;" :class="{ active: reqParams.sortField === 'praiseCount' }" @click="changeSort('praiseCount')">最热</a>
     </div>
     <!-- 列表 -->
     <div class="list">
-      <div class="item" v-for="item in commentList.items" :key="item.id">
+      <div class="item" v-for="item in commentList" :key="item.id">
         <div class="user">
           <img :src="item.member.avatar" alt="" />
           <span>{{ formatNickname(item.member.nickname) }}</span>
         </div>
         <div class="body">
           <div class="score">
-            <i
-              class="iconfont icon-wjx01"
-              v-for="i in item.score"
-              :key="i + 's'"
-            ></i>
-            <i
-              class="iconfont icon-wjx02"
-              v-for="i in 5 - item.score"
-              :key="i + 'k'"
-            ></i>
+            <i class="iconfont icon-wjx01" v-for="i in item.score" :key="i + 's'"></i>
+            <i class="iconfont icon-wjx02" v-for="i in 5 - item.score" :key="i + 'k'"></i>
             <span class="attr">{{ formatSpecs(item.orderInfo.specs) }}</span>
           </div>
           <div class="text">
@@ -73,14 +41,17 @@
           </div>
           <div class="time">
             <span>{{ item.orderInfo.createTime }}</span>
-            <span class="zan"
-              ><i class="iconfont icon-dianzan"></i>{{ item.praiseCount }}</span
-            >
+            <span class="zan"><i class="iconfont icon-dianzan"></i>{{ item.praiseCount }}</span>
           </div>
+          <GoodsCommentImage :pictures="item.pictures" v-if="item.pictures.length"></GoodsCommentImage>
         </div>
       </div>
     </div>
+    <!-- 分页组件 -->
+    <XtxPagination v-model:currentPage="reqParams.page" :pageSize="reqParams.pageSize" :total="total"></XtxPagination>
   </div>
+  <!-- 加载效果 -->
+  <div class="loading" v-else></div>
 </template>
 
 <script>
@@ -90,6 +61,7 @@ export default {
 </script>
 
 <script setup>
+import GoodsCommentImage from './goods-comment-image'
 import { inject, ref, reactive, watch } from 'vue'
 import { findGoodsCommentInfo, findGoodsCommentList } from '@/api/product'
 const goods = inject('goods')
@@ -148,13 +120,16 @@ const changeSort = (type) => {
 
 // 获取商品评价列表数据
 const commentList = ref([])
+// 商品评价列表总条数
+const total = ref(0)
 // 监听请求参数对象的变化，每次请求参数对象属性变化后重新发送请求获取数据
 watch(
   reqParams,
   () => {
     findGoodsCommentList(goods.value.id, reqParams).then((data) => {
-      console.log(data.result)
-      commentList.value = data.result
+      // console.log(data.result)
+      commentList.value = data.result.items
+      total.value = data.result.counts
     })
   },
   { immediate: true }
@@ -296,5 +271,10 @@ const formatNickname = (nickname) => {
       }
     }
   }
+}
+.loading {
+  width: 100%;
+  height: 600px;
+  background: url('@/assets/images/load.gif') no-repeat center 100px;
 }
 </style>
