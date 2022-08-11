@@ -15,5 +15,6 @@
       "dom.iterable",
       "scripthost"
     ],
-  }
+  },
+  "serve": "vue-cli-service serve --disableHostCheck=true "
 }

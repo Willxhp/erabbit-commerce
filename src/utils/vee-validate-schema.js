@@ -1,3 +1,5 @@
+import {checkAccount} from '@/api/user'
+
 export default {
   // 表单校验规则，如果校验通过则返回true，如果校验失败则返回一个字符串
   account(value) {
@@ -5,9 +7,23 @@ export default {
     if (!/^[a-zA-Z]\w{5,19}$/.test(value)) return '用户名必须为字符开头的6-20位字符'
     return true
   },
+  async accountApi(value) {
+    if (!value) return '请输入用户名'
+    if (!/^[a-zA-Z]\w{5,19}$/.test(value)) return '用户名必须为字符开头的6-20位字符'
+    // 发送请求校验用户名是否唯一
+    const {result} = await checkAccount(value)
+    if (result.valid) return '用户名已存在'
+    return true
+  },
   password(value) {
     if (!value) return '请输入密码'
     if (!/^\w{6,24}$/.test(value)) return '密码为6-24位字符'
+    return true
+  },
+  rePassword(value, {form}) {
+    if (!value) return '请输入密码'
+    if (!/^\w{6,24}$/.test(value)) return '密码为6-24位字符'
+    if (value !== form.password) return '两次密码输入不一致'
     return true
   },
   mobile(value) {

@@ -19,8 +19,18 @@ module.exports = defineConfig({
       .test(/\.(jpg|png|gif)$/)
       .set('parser', {
         dataUrlCondition: {
-          maxSize: 10000 * 1024
-        }
+          maxSize: 10000 * 1024,
+        },
       })
+  },
+  configureWebpack: {
+    // 设置打包忽略文件，模块为qc变量名为QC，导入qc将不做打包。
+    externals: {
+      qc: 'QC',
+    },
+    // 给webpack-dev-server开启IP和域名访问权限。
+    devServer: {
+      allowedHosts: 'www.corho.com',
+    },
   },
 })

@@ -66,10 +66,13 @@
       <a href="javascript:;" class="btn" @click="login">登录</a>
     </Form>
     <div class="action">
-      <img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png" alt="">
+      <!-- <span id="qqLoginBtn"></span> -->
+      <a href="https://graph.qq.com/oauth2.0/authorize?client_id=100556005&response_type=token&scope=all&redirect_uri=http%3A%2F%2Fwww.corho.com%3A8080%2F%23%2Flogin%2Fcallback">
+        <img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png" alt="">
+      </a>
       <div class="url">
         <a href="javascript:;">忘记密码</a>
-        <a href="javascript:;">免费注册</a>
+        <router-link to="/register">免费注册</router-link>
       </div>
     </div>
   </div>
@@ -82,7 +85,7 @@ export default {
 </script>
 
 <script setup>
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref, watch, onMounted } from 'vue'
 import { Field, Form } from 'vee-validate'
 import schemaFn from '@/utils/vee-validate-schema'
 import Message from '@/components/library/Message'
@@ -90,6 +93,8 @@ import { userAccountLogin, getMobileLoginCode, userMobileLogin } from '@/api/use
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { useIntervalFn } from '@vueuse/core'
+import { useCode } from '@/hooks'
+// import QC from 'qc'
 
 const store = useStore()
 const router = useRouter()
@@ -161,37 +166,45 @@ const login = async () => {
   }
 }
 
-// 发送验证码60s后才可以重新发送
-const time = ref(0)
-// 使用@vueuse/core提供的useIntervalFn来实现time每隔1s自动减1
-// pause和resume是两个函数，分别用于关闭和开启定时器
-// useIntervalFn接收三个参数，回调函数，时间间隔和配置对象
-const { pause, resume } = useIntervalFn(() => {
-  time.value--
-  if (time.value <= 0) pause()
-}, 1000, {
-  immediate: false // 定时器不会立即开启，必须调用resume方法才会开启
-})
+// 将发送验证码我的逻辑封装成一个hooks
+const { send, time } = useCode(schema, form, formEl, getMobileLoginCode)
+// // 发送验证码60s后才可以重新发送
+// const time = ref(0)
+// // 使用@vueuse/core提供的useIntervalFn来实现time每隔1s自动减1
+// // pause和resume是两个函数，分别用于关闭和开启定时器
+// // useIntervalFn接收三个参数，回调函数，时间间隔和配置对象
+// const { pause, resume } = useIntervalFn(() => {
+//   time.value--
+//   if (time.value <= 0) pause()
+// }, 1000, {
+//   immediate: false // 定时器不会立即开启，必须调用resume方法才会开启
+// })
 
-// 发送验证码
-const send = () => {
-  // 对mobile表单项进行单独校验
-  const valid = schema.mobile(form.mobile)
-  if (valid === true) {
-    // 手机号格式正确，发送请求获取短信验证码，同时开启定时器
-    if (time.value === 0) {
-      getMobileLoginCode(form.mobile)
-      Message({ type: 'success', text: '验证码发送成功' })
-      time.value = 60
-      pause() // 先关闭定时器再开启定时器，以防重复开启定时器
-      resume()
-    }
-  } else {
-    // 手机号格式错误
-    formEl.value.setFieldError('mobile', valid)
-  }
-}
+// // 发送验证码
+// const send = () => {
+//   // 对mobile表单项进行单独校验
+//   const valid = schema.mobile(form.mobile)
+//   if (valid === true) {
+//     // 手机号格式正确，发送请求获取短信验证码，同时开启定时器
+//     if (time.value === 0) {
+//       getMobileLoginCode(form.mobile)
+//       Message({ type: 'success', text: '验证码发送成功' })
+//       time.value = 60
+//       pause() // 先关闭定时器再开启定时器，以防重复开启定时器
+//       resume()
+//     }
+//   } else {
+//     // 手机号格式错误
+//     formEl.value.setFieldError('mobile', valid)
+//   }
+// }
 
+// onMounted(() => {
+//   // 组件渲染完成后，使用QC生成QQ登录按钮
+//   QC.Login({
+//     btnId: 'qqLoginBtn'
+//   })
+// })
 </script>
 
 <style lang="less" scoped>
@@ -288,9 +301,6 @@ const send = () => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    img {
-      cursor: pointer;
-    }
     .url {
       a {
         color: #999;
