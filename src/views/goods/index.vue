@@ -25,18 +25,10 @@
           <GoodsSku :goods="goods" @change="changeSku"></GoodsSku>
           <div style="display: flex; align-items: center">
             <!-- 数量选择组件 -->
-            <XtxNumbox
-              label="数量"
-              v-model="num"
-              :max="goods.inventory"
-            ></XtxNumbox>
-            <span style="margin-left: 10px; color: #999"
-              >库存 {{ goods.inventory > 999 ? '999+' : goods.inventory }} 件</span
-            >
+            <XtxNumbox label="数量" v-model="num" :max="goods.inventory"></XtxNumbox>
+            <span style="margin-left: 10px; color: #999">库存 {{ goods.inventory > 999 ? '999+' : goods.inventory }} 件</span>
           </div>
-          <XtxButton type="primary" style="margin-top: 20px"
-            >加入购物车</XtxButton
-          >
+          <XtxButton type="primary" style="margin-top: 20px" @click="insertCart">加入购物车</XtxButton>
         </div>
       </div>
       <!-- 商品推荐组件 -->
@@ -81,7 +73,10 @@ import GoodsWarn from './components/goods-warn'
 import { findGoods } from '@/api/product'
 import { useRoute } from 'vue-router'
 import { ref, watch, nextTick, provide } from 'vue'
+import Message from '@/components/library/Message'
+import { useStore } from 'vuex'
 const route = useRoute()
+const store = useStore()
 // 商品信息数据
 const goods = ref(null)
 // 向后代组件提供商品数据
@@ -118,8 +113,11 @@ useGoods()
 
 // 保存商品默认信息，当商品规格选择不完整时显示
 let defaultGoodsInfo
-
+// 保存商品sku信息
+const currSku = ref({})
 const changeSku = (sku) => {
+  // 每当用户选择规格后会返回最新的sku信息，若规格选择不完整，返回的是空对象{}
+  currSku.value = sku
   if (sku.skuId) {
     goods.value.price = sku.price
     goods.value.oldPrice = sku.oldPrice
@@ -128,6 +126,36 @@ const changeSku = (sku) => {
     goods.value.price = defaultGoodsInfo.price
     goods.value.oldPrice = defaultGoodsInfo.oldPrice
     goods.value.inventory = defaultGoodsInfo.inventory
+  }
+}
+
+// 加入购物车
+const insertCart = () => {
+  // 本地：id skuId name picture price nowPrice count attrsText selected stock isEffective
+  if (currSku.value.skuId) {
+    // 判断规格是否选择完整
+    if (num.value > goods.value.inventory) {
+      return Message({text: '商品库存不足'})
+    }
+    const { id, name, mainPictures, price, inventory: stock } = goods.value
+    const { skuId, specsText: attrsText } = currSku.value
+    store.dispatch('cart/insertCart', {
+      id,
+      skuId,
+      name,
+      picture: mainPictures[0],
+      price,
+      nowPrice: price,
+      selected: true,
+      isEffective: true,
+      count: num.value,
+      attrsText,
+      stock
+    }).then(() => {
+      Message({type: 'success', text: '商品加入购物车成功'})
+    })
+  } else {
+    Message({ text: '请选择完整规格' })
   }
 }
 </script>

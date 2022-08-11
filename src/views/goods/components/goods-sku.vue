@@ -181,7 +181,7 @@ updateDisabledStatus(props.goods.specs, pathMap)
 <style lang="less" scoped>
 .sku-state-mixin () {
   border: 1px solid #e4e4e4;
-  margin-right: 10px;
+  margin: 0 10px 5px 0;
   cursor: pointer;
   &.selected {
     border-color: @xtxColor;

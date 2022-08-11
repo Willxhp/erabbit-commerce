@@ -7,8 +7,8 @@ import store from '@/store'
 import router from '@/router'
 
 // 导出基地址，便于非axios发送网络请求的地方使用
-// export const baseURL = 'http://apipc-xiaotuxian-front.itheima.net' // 备用接口地址
-export const baseURL = 'http://pcapi-xiaotuxian-front-devtest.itheima.net'
+export const baseURL = 'http://apipc-xiaotuxian-front.itheima.net' // 备用接口地址
+// export const baseURL = 'http://pcapi-xiaotuxian-front-devtest.itheima.net'
 const instance = axios.create({
   baseURL,
   timeout: 5000,
