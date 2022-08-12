@@ -36,8 +36,8 @@ import schemaFn from '@/utils/vee-validate-schema'
 import { useCode } from '@/hooks'
 import { getQQLoginCode, bindQQLogin } from '@/api/user'
 import Message from '@/components/library/Message'
-import {useStore} from 'vuex'
-import {useRouter} from 'vue-router'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 
 const store = useStore()
 const router = useRouter()
@@ -75,13 +75,15 @@ const submit = async () => {
   // 表单校验
   const valid = await formEl.value.validate()
   if (valid) {
-    bindQQLogin({unionId: props.unionId, mobile: form.mobile, code: form.code}).then(data => {
+    bindQQLogin({ unionId: props.unionId, mobile: form.mobile, code: form.code }).then(data => {
       const { account, id, avatar, mobile, nickname, token } = data.result
       // 用户信息存储至vuex中
       store.commit('user/setUser', { account, id, avatar, mobile, nickname, token })
-      Message({ type: 'success', text: '绑定成功' })
-      // 登录成功后跳转至来源页面或首页
-      router.push(store.state.user.redirectUrl)
+      store.dispatch('cart/mergeCart').then(() => {
+        Message({ type: 'success', text: '绑定成功' })
+        // 登录成功后跳转至来源页面或首页
+        router.push(store.state.user.redirectUrl)
+      })
     }, error => {
       // 登录失败
       Message({ type: 'error', text: error.response.data.message || '绑定失败' })

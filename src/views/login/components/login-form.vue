@@ -142,9 +142,13 @@ const login = async () => {
         const { account, id, avatar, mobile, nickname, token } = data.result
         // 用户信息存储至vuex中
         store.commit('user/setUser', { account, id, avatar, mobile, nickname, token })
-        Message({ type: 'success', text: '登录成功' })
-        // 登录成功后跳转至来源页面或首页
-        router.push(store.state.user.redirectUrl)
+        // 登录成功后清空本地购物车列表
+        store.dispatch('cart/mergeCart').then(() => {
+          // 提示登录成功
+          Message({ type: 'success', text: '登录成功' })
+          // 登录成功后跳转至来源页面或首页
+          router.push(store.state.user.redirectUrl)
+        })
       }, error => {
         // 登录失败
         Message({ type: 'error', text: error.response.data.message || '登录失败' })

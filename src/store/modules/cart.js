@@ -1,7 +1,7 @@
 // 购物车模块
 // 购物车模块分为本地操作和登录后操作两大部分
 // 由于登录后操作需要发送网络请求，为异步操作，所以获取新值的操作全部放在actions中，并且包装为Promise
-import { checkGoodsStock } from '@/api/cart'
+import { checkGoodsStock, mergeCart, findCartList, insertCart, deleteCart } from '@/api/cart'
 import PromisePool from '@/utils/PromisePool'
 
 export default {
@@ -102,6 +102,10 @@ export default {
       const index = state.list.findIndex((goods) => goods.skuId === skuId)
       state.list.splice(index, 1)
     },
+    // 设置购物车列表，可用于清空购物车
+    setCart(state, payload) {
+      state.list = payload
+    }
   },
   actions: {
     // 加入购物车
@@ -111,6 +115,12 @@ export default {
         // rootState获取根state，可以获取到不同模块state中的数据
         if (context.rootState.user.profile.token) {
           // 用户已经登录
+          insertCart(payload).then(() => {
+            // 操作成功后重新获取购物车列表
+            context.dispatch('findCartList').then(() => {
+              resolve()
+            })
+          })
         } else {
           // 本地操作
           context.commit('insertCart', payload)
@@ -123,6 +133,10 @@ export default {
       return new Promise((resolve, reject) => {
         if (context.rootState.user.profile.token) {
           // 用户已登录
+          findCartList().then(data => {
+            context.commit('setCart', data.result)
+            resolve()
+          })
         } else {
           // 本地操作
           // 利用Promise.all()同时发送多个请求，此处需要进行高并发处理
@@ -148,6 +162,7 @@ export default {
           )
           const list = context.state.list.map((item) => item.skuId)
           promisePool.start(list)
+          resolve()
         }
       })
     },
@@ -156,6 +171,11 @@ export default {
       return new Promise((resolve, reject) => {
         if (context.rootState.user.profile.token) {
           // 登录状态
+          deleteCart([skuId]).then(() => {
+            context.dispatch('findCartList').then(() => {
+              resolve()
+            })
+          })
         } else {
           context.commit('deleteCart', skuId)
           resolve()
@@ -196,6 +216,12 @@ export default {
       return new Promise((resolve, reject) => {
         if (context.rootState.user.profile.token) {
           // 用户已经登录
+          const ids = context.getters[isClear ? 'invalidList' : 'selectedList'].map(goods => goods.skuId)
+          deleteCart(ids).then(() => {
+            context.dispatch('findCartList').then(() => {
+              resolve()
+            })
+          })
         } else {
           // 本地操作
           context.getters[isClear ? 'invalidList' : 'selectedList'].forEach((goods) => {
@@ -238,6 +264,14 @@ export default {
           context.commit('insertCart', newGoods)
           resolve()
         }
+      })
+    },
+    // 合并本地购物车，登录成功后调用
+    mergeCart(context) {
+      const cartList = context.state.list.map(({skuId, selected, count}) => ({skuId, selected, count}))
+      mergeCart(cartList).then(() => {
+        // 合并成功后清空本地购物车列表
+        context.commit('setCart', [])
       })
     }
   },

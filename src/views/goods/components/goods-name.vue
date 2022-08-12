@@ -51,10 +51,12 @@ const fullLocation = ref('北京市 市辖区 东城区')
 // 若用户已经登录
 if (props.goods.userAddresses) {
   const defaultAddr = props.goods.userAddresses.find(item => item.isDefault === 1)
-  provinceCode.value = defaultAddr.provinceCode
-  cityCode.value = defaultAddr.cityCode
-  countyCode.value = defaultAddr.countyCode
-  fullLocation.value = defaultAddr.fullLocation
+  if (defaultAddr) {
+    provinceCode.value = defaultAddr.provinceCode
+    cityCode.value = defaultAddr.cityCode
+    countyCode.value = defaultAddr.countyCode
+    fullLocation.value = defaultAddr.fullLocation
+  }
 }
 
 // 城市选择完毕后触发的回调

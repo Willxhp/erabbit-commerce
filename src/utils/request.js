@@ -20,7 +20,7 @@ instance.interceptors.request.use(
     const { profile } = store.state.user
     // 判断是否有token
     if (profile.token) {
-      config.headers.Authoration = `Bearer ${profile.token}`
+      config.headers.Authorization = `Bearer ${profile.token}`
     }
     return config
   },

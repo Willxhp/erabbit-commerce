@@ -52,10 +52,10 @@ import { Field, Form } from 'vee-validate'
 import { reactive, ref } from 'vue'
 import schemaFn from '@/utils/vee-validate-schema'
 import { useCode } from '@/hooks'
-import {getRegisterCode, patchQQLogin} from '@/api/user'
+import { getRegisterCode, patchQQLogin } from '@/api/user'
 import Message from '@/components/library/Message'
-import {useStore} from 'vuex'
-import {useRouter} from 'vue-router'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 
 const store = useStore()
 const router = useRouter()
@@ -84,20 +84,22 @@ const schema = {
   rePassword: schemaFn.rePassword
 }
 
-const {time, send} = useCode(schema, form, formEl, getRegisterCode)
+const { time, send } = useCode(schema, form, formEl, getRegisterCode)
 
 // 表单提交
 const submit = async () => {
   // 表单校验
   const valid = await formEl.value.validate()
   if (valid) {
-    patchQQLogin({unionId: props.unionId, ...form}).then(data => {
+    patchQQLogin({ unionId: props.unionId, ...form }).then(data => {
       const { account, id, avatar, mobile, nickname, token } = data.result
       // 用户信息存储至vuex中
       store.commit('user/setUser', { account, id, avatar, mobile, nickname, token })
-      Message({ type: 'success', text: '绑定成功' })
-      // 登录成功后跳转至来源页面或首页
-      router.push(store.state.user.redirectUrl)
+      store.dispatch('cart/mergeCart').then(() => {
+        Message({ type: 'success', text: '绑定成功' })
+        // 登录成功后跳转至来源页面或首页
+        router.push(store.state.user.redirectUrl)
+      })
     }, error => {
       // 登录失败
       Message({ type: 'error', text: error.response.data.message || '绑定失败' })

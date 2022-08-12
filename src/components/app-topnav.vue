@@ -40,6 +40,7 @@ const profile = computed(() => store.state.user.profile)
 
 // 退出登录
 const logout = () => {
+  // 清空本地用户信息
   store.commit('user/setUser', {
     id: '',
     avatar: '',
@@ -48,6 +49,8 @@ const logout = () => {
     mobile: '',
     token: ''
   })
+  // 清空本地购物车信息
+  store.commit('cart/setCart', [])
   Message({type: 'success', text: '退出登录成功'})
   router.push('/login')
 }

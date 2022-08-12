@@ -97,10 +97,9 @@ const register = async () => {
     userRegister({...form}).then(data => {
       const { account, id, avatar, mobile, nickname, token } = data.result
       // 用户信息存储至vuex中
-      store.commit('user/setUser', { account, id, avatar, mobile, nickname, token })
       Message({ type: 'success', text: '注册成功' })
-      // 登录成功后跳转至来源页面或首页
-      router.push(store.state.user.redirectUrl)
+      // 注册成功后跳转至登录页面
+      router.push('/login')
     }, error => {
       // 登录失败
       Message({ type: 'error', text: error.response.data.message || '注册失败' })

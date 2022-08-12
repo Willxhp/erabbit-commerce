@@ -71,10 +71,12 @@ if (QC.Login.check()) {
   QC.Login.getMe((openId) => {
     userQQLogin(openId).then(data => {
       // 登录成功说明用户已经绑定账号，保存用户信息并跳转至来源页面或首页即可
-      const {id, nickname, avatar, mobile, token, account} = data.result
-      store.commit('user/setUser', {id, nickname, avatar, mobile, token, account})
-      router.push(store.state.user.redirectUrl)
-      Message({type: 'success', text: '登录成功'})
+      const { id, nickname, avatar, mobile, token, account } = data.result
+      store.commit('user/setUser', { id, nickname, avatar, mobile, token, account })
+      store.dispatch('cart/mergeCart').then(() => {
+        router.push(store.state.user.redirectUrl)
+        Message({ type: 'success', text: '登录成功' })
+      })
     }).catch(() => {
       // 登录失败说明账号未绑定，显示绑定或注册组件
       unionId.value = openId
