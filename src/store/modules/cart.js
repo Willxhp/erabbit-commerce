@@ -65,6 +65,11 @@ export default {
         }
       }
     },
+    // 删除购物车商品
+    deleteCart(state, skuId) {
+      const index = state.list.find((goods) => goods.skuId === skuId)
+      state.list.splice(index, 1)
+    },
   },
   actions: {
     // 加入购物车
@@ -81,7 +86,8 @@ export default {
         }
       })
     },
-    updateCart(context) {
+    // 获取购物车列表
+    findCartList(context) {
       return new Promise((resolve, reject) => {
         if (context.rootState.user.profile.token) {
           // 用户已登录
@@ -103,21 +109,24 @@ export default {
           let promisePool = new PromisePool(
             10,
             checkGoodsStock,
-            (data, options) => {
-              console.log(data, options)
-              context.commit('updateCart', {skuId: options, ...data.result})
-            },
-            () => {
-              resolve()
-            },
-            () => {
-              reject()
-            }
+            (data, options) => context.commit('updateCart', { skuId: options, ...data.result }),
+            () => resolve(),
+            () => reject()
           )
-          const list = context.state.list.map(item => item.skuId)
+          const list = context.state.list.map((item) => item.skuId)
           promisePool.start(list)
         }
       })
     },
-  },
+    deleteCart(context, skuId) {
+      return new Promise((resolve, reject) => {
+        if (context.rootState.user.profile.token) {
+          // 登录状态
+        } else {
+          context.commit('deleteCart', skuId)
+          resolve()
+        }
+      })
+    }
+  }
 }

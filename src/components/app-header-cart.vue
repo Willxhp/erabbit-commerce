@@ -17,7 +17,7 @@
               <p class="count">x{{goods.count}}</p>
             </div>
           </RouterLink>
-          <i class="iconfont icon-close-new"></i>
+          <i class="iconfont icon-close-new" @click="deleteCart(goods.skuId)"></i>
         </div>
       </div>
       <div class="foot">
@@ -47,11 +47,20 @@ const total = computed(() => store.getters['cart/validTotal'])
 const account = computed(() => store.getters['cart/validAccount'])
 
 // 组件初始化时对购物车中的商品数据进行更新
-store.dispatch('cart/updateCart').then(() => {
+store.dispatch('cart/findCartList').then(() => {
   Message({type: 'success', text: '更新购物车信息成功'})
 }).catch(() => {
   Message({type: 'error', text: '更新购物车信息失败'})
 })
+
+// 删除购物车商品
+const deleteCart = (skuId) => {
+  store.dispatch('cart/deleteCart', skuId).then(() => {
+    Message({type: 'success', text: '删除成功'})
+  }).catch(() => {
+    Message({type: 'error', text: '删除失败'})
+  })
+}
 </script>
 
 <style lang="less" scoped>
