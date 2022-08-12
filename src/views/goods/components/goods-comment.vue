@@ -275,6 +275,6 @@ const formatNickname = (nickname) => {
 .loading {
   width: 100%;
   height: 600px;
-  background: url('@/assets/images/load.gif') no-repeat center 100px;
+  background: url('@/assets/images/loading.gif') no-repeat center 100px;
 }
 </style>

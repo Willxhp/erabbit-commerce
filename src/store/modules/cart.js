@@ -24,8 +24,40 @@ export default {
     validAccount(state, getters) {
       // 有效商品总价，js计算浮点数存在不精确的问题，先将价格*100转换成整数后再相加，最后/100
       return (
-        getters.validList.reduce((p, c) => parseInt(p + c.nowPrice * 100), 0) /
-        100
+        getters.validList.reduce(
+          (p, c) => Math.round(c.nowPrice * 100) * c.count + p,
+          0
+        ) / 100
+      )
+    },
+    invalidList(state) {
+      // 失效商品列表，商品没有库存或商品失效
+      return state.list.filter(
+        (goods) => goods.stock <= 0 || !goods.isEffective
+      )
+    },
+    selectedList(state, getters) {
+      // 已选商品列表
+      return getters.validList.filter((goods) => goods.selected)
+    },
+    selectedTotal(state, getters) {
+      // 已选商品总数
+      return getters.selectedList.reduce((p, c) => p + c.count, 0)
+    },
+    selectedAccount(state, getters) {
+      // 已选商品总价
+      return (
+        getters.selectedList.reduce(
+          (p, c) => Math.round(c.nowPrice * 100) * c.count + p,
+          0
+        ) / 100
+      )
+    },
+    isCheckAll(state, getters) {
+      // 是否全选，已选商品列表与有效商品列表的长度是否相等且不为0
+      return (
+        getters.validList.length !== 0 &&
+        getters.validList.length === getters.selectedList.length
       )
     },
   },
@@ -67,7 +99,7 @@ export default {
     },
     // 删除购物车商品
     deleteCart(state, skuId) {
-      const index = state.list.find((goods) => goods.skuId === skuId)
+      const index = state.list.findIndex((goods) => goods.skuId === skuId)
       state.list.splice(index, 1)
     },
   },
@@ -109,7 +141,8 @@ export default {
           let promisePool = new PromisePool(
             10,
             checkGoodsStock,
-            (data, options) => context.commit('updateCart', { skuId: options, ...data.result }),
+            (data, options) =>
+              context.commit('updateCart', { skuId: options, ...data.result }),
             () => resolve(),
             () => reject()
           )
@@ -118,6 +151,7 @@ export default {
         }
       })
     },
+    // 删除购物车
     deleteCart(context, skuId) {
       return new Promise((resolve, reject) => {
         if (context.rootState.user.profile.token) {
@@ -127,6 +161,84 @@ export default {
           resolve()
         }
       })
+    },
+    // 更新购物车数据
+    updateCart(context, payload) {
+      // payload中必须要有商品的skuId
+      // payload为商品信息对象
+      return new Promise((resolve, reject) => {
+        // rootState获取根state，可以获取到不同模块state中的数据
+        if (context.rootState.user.profile.token) {
+          // 用户已经登录
+        } else {
+          // 本地操作
+          context.commit('updateCart', payload)
+          resolve()
+        }
+      })
+    },
+    // 全选操作
+    checkAllCart(context, selected) {
+      return new Promise((resolve, reject) => {
+        if (context.rootState.user.profile.token) {
+          // 用户已经登录
+        } else {
+          // 本地操作
+          context.getters.validList.forEach((goods) => {
+            context.commit('updateCart', {skuId: goods.skuId, selected })
+          })
+          resolve()
+        }
+      })
+    },
+    // 批量删除选中的商品或失效的商品
+    batchDeleteCart(context, isClear) {
+      return new Promise((resolve, reject) => {
+        if (context.rootState.user.profile.token) {
+          // 用户已经登录
+        } else {
+          // 本地操作
+          context.getters[isClear ? 'invalidList' : 'selectedList'].forEach((goods) => {
+            context.commit('deleteCart', goods.skuId)
+          })
+          resolve()
+        }
+      })
+    },
+    // 改变购物车中的商品数量
+    changeCount(context, {skuId, count}) {
+      return new Promise((resolve, reject) => {
+        if (context.rootState.user.profile.token) {
+          // 用户已经登录
+        } else {
+          // 本地操作
+          context.commit('updateCart', {skuId, count})
+          resolve()
+        }
+      })
+    },
+    // 修改购物车中的商品sku信息
+    updateCartSku(context, {oldSkuId, newSku}) {
+      return new Promise((resolve, reject) => {
+        if (context.rootState.user.profile.token) {
+          // 用户已经登录
+        } else {
+          // 由于skuId是区分购物车中商品的唯一标识，当某件商品的规格信息发生变化时，其在购物车中应当视为新的商品
+          // 而且修改后的skuId可能与购物车中的其他商品skuId相同，此时应将两件商品的数量合并
+          // 所以在修改购物车中的商品sku信息时，应删除原商品再插入新商品
+          // 首先根据旧的skuId找到购物车商品列表中的商品信息
+          const oldGoods = context.state.list.find(goods => goods.skuId === oldSkuId)
+          // 然后将旧的商品从购物车数据中删除
+          context.commit('deleteCart', oldSkuId)
+          // 将旧的商品信息与newSku中的信息合并得到新的商品
+          const {skuId, price: nowPrice, inventory: stock, specsText: attrsText} = newSku
+          // 本地：id skuId name picture price nowPrice count attrsText selected stock isEffective
+          // 向购物车中插入新的商品
+          const newGoods = {...oldGoods, skuId, nowPrice, price: nowPrice, stock, attrsText}
+          context.commit('insertCart', newGoods)
+          resolve()
+        }
+      })
     }
-  }
+  },
 }

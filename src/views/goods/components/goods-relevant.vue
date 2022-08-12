@@ -2,7 +2,7 @@
   <div class="goods-relevant">
     <div class="header">
       <i class="icon" />
-      <span class="title">同类商品推荐</span>
+      <span class="title">{{goodsId ? '同类商品推荐' : '猜你喜欢'}}</span>
     </div>
     <!-- 此处使用改造后的xtx-carousel.vue -->
     <XtxCarousel :sliders="sliders"></XtxCarousel>
@@ -20,10 +20,16 @@ export default {
 import { ref } from 'vue'
 import { findGoodsRelevant } from '@/api/product'
 import { useRoute } from 'vue-router'
+const props = defineProps({
+  goodsId: {
+    type: String,
+    default: null
+  }
+})
 const route = useRoute()
 // 获取轮播图数据
 const sliders = ref([])
-findGoodsRelevant({ id: route.params.id }).then(data => {
+findGoodsRelevant(props.goodsId).then(data => {
   const pageSize = 4
   let pageNum = Math.ceil(data.result.length / pageSize)
   for (let i = 0; i < pageNum; i++) {

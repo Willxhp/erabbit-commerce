@@ -15,6 +15,7 @@ export default {
 </script>
 
 <script setup>
+import { useVModel } from '@vueuse/core'
 const props = defineProps({
   label: {
     type: String,
@@ -33,12 +34,14 @@ const props = defineProps({
     default: 10
   }
 })
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'change'])
+const modelValue = useVModel(props, 'modelValue', emit)
 const changeNum = (step) => {
   const newVal = props.modelValue + step
   // 首先判断修改后的值是否合法
   if (newVal < props.min || newVal > props.max) return
-  emit('update:modelValue', newVal)
+  modelValue.value = newVal
+  emit('change', newVal)
 }
 </script>
 
@@ -64,10 +67,10 @@ const changeNum = (step) => {
       font-size: 16px;
       color: #666;
       &:first-of-type {
-        border-right:1px solid #e4e4e4;
+        border-right: 1px solid #e4e4e4;
       }
       &:last-of-type {
-        border-left:1px solid #e4e4e4;
+        border-left: 1px solid #e4e4e4;
       }
     }
     > input {

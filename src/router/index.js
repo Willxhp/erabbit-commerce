@@ -1,14 +1,18 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 // 路由组件采用路由懒加载的方式导入
+// 一级路由
 const Layout = () => import('@/views/Layout')
+const LoginCallback = () => import('@/views/login/callback')
+const Register = () => import('@/views/login/register.vue')
+
+// 二级路由
 const Home = () => import('@/views/home')
 const topCategory = () => import('@/views/category')
 const subCategory = () => import('@/views/category/sub')
 const Goods = () => import('@/views/goods')
 const Login = () => import('@/views/login')
-const LoginCallback = () => import('@/views/login/callback')
-const Register = () => import('@/views/login/register.vue')
+const Cart = () => import('@/views/cart')
 
 const routes = [
   {
@@ -30,6 +34,10 @@ const routes = [
       {
         path: 'product/:id',
         component: Goods
+      },
+      {
+        path: 'cart',
+        component: Cart
       }
     ],
   },

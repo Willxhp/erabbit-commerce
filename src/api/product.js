@@ -15,7 +15,7 @@ export const findGoods = (id) => {
  * @param {Integer} limit - 商品数量限制
  * @returns
  */
-export const findGoodsRelevant = ({ id = null, limit = 16 }) => {
+export const findGoodsRelevant = (id = null, limit = 16 ) => {
   return request('/goods/relevant', 'get', { id, limit })
 }
 

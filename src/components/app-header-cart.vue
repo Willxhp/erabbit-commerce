@@ -1,8 +1,8 @@
 <template>
   <div class="cart">
-    <a class="curr" href="#">
+    <router-link class="curr" :to="'/cart'">
       <i class="iconfont icon-cart"></i><em>{{total}}</em>
-    </a>
+    </router-link>
     <div class="layer" v-if="total > 0 && $route.path !== '/cart'">
       <div class="list">
         <div class="item" v-for="goods in cartList" :key="goods.skuId">
@@ -25,7 +25,7 @@
           <p>共 {{total}} 件商品</p>
           <p>&yen;{{account}}</p>
         </div>
-        <XtxButton type="plain">去购物车结算</XtxButton>
+        <XtxButton type="plain" @click="$router.push('/cart')">去购物车结算</XtxButton>
       </div>
     </div>
   </div>

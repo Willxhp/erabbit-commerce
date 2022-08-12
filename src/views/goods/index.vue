@@ -32,7 +32,7 @@
         </div>
       </div>
       <!-- 商品推荐组件 -->
-      <GoodsRelevant />
+      <GoodsRelevant :goodsId="goods.id" />
       <!-- 商品详情 -->
       <div class="goods-footer">
         <div class="goods-article">
@@ -92,9 +92,9 @@ const useGoods = () => {
     (newVal) => {
       if (newVal && `/product/${newVal}` === route.path) {
         findGoods({ id: route.params.id }).then((data) => {
-          console.log(data.result)
           // 每次获取数据后，先将goods重置为null，利用v-if将组件销毁，从而在新数据返回后触发所有子组件的setup函数
           goods.value = null
+          num.value = 1
           nextTick(() => {
             goods.value = data.result
             defaultGoodsInfo = {
